@@ -1,0 +1,94 @@
+dwm - dynamic window manager
+============================
+dwm is an extremely fast, small, and dynamic window manager for X.
+
+
+Requirements
+------------
+In order to build dwm you need the Xlib, Xinerama, Xft, FreeType, and
+fontconfig development headers. The active configuration also expects
+Kitty, Rofi (preferred; dmenu is kept as a fallback), `xprop`, `wpctl`,
+`brightnessctl`, and the JetBrains Mono Nerd Font.
+
+
+Installation
+------------
+Edit config.mk to match your local setup (dwm is installed into
+the /usr/local namespace by default).
+
+Afterwards enter the following command to build and install dwm (if
+necessary as root):
+
+    make clean install
+
+
+Running dwm
+-----------
+Add the following line to your .xinitrc to start dwm using startx:
+
+    exec dwm
+
+In order to connect dwm to a specific display, make sure that
+the DISPLAY environment variable is set correctly, e.g.:
+
+    DISPLAY=foo.bar:1 exec dwm
+
+(This will start dwm on display :1 of the host foo.bar.)
+
+In order to display status info in the bar, you can do something
+like this in your .xinitrc:
+
+    while xsetroot -name "`date` `uptime | sed 's/.*,//'`"
+    do
+    	sleep 1
+    done &
+    exec dwm
+
+
+Configuration
+-------------
+The configuration of dwm is done by creating a custom config.h
+and (re)compiling the source code.
+
+
+Custom features in this checkout
+--------------------------------
+This checkout uses the fullgaps layout patch (for tiled and monocle
+layouts) and adds the following bindings:
+
+* Gruvbox dark colors are used for DWM, the bar, and Rofi.
+* Tag 9 uses a Zen-like bullseye glyph; `Alt+9` still selects it.
+* The bar is drawn directly by DWM with an opaque full redraw, padded modules,
+  and a focus accent; `~/.local/bin/dwm-status` supplies its memory, volume,
+  battery, and clock text.
+* `Alt+M` zooms the focused client; `Alt+Shift+M` selects monocle.
+* `Alt+minus` and `Alt+equal` change the current monitor's gap size.
+  Runtime gaps are capped at 100 pixels; `Alt+Shift+equal` removes them.
+* `Alt+Return` starts Kitty, `Alt+P` opens Rofi (falling back to dmenu),
+  and the audio/brightness keys use PipeWire (`wpctl`) and `brightnessctl`
+  respectively. Rofi starts in `drun` mode; `Ctrl+Tab` switches modes.
+* `Alt+Q` closes the focused window; `Alt+Shift+Q` quits dwm.
+
+`config.h` is the active configuration. `config.def.h` is the tracked
+starting point for creating a new configuration. The matching Rofi theme is
+stored at `~/.config/rofi/config.rasi`. It is intentionally centered,
+rectangular, icon-free, and currently 15% transparent to match dmenu. On
+Arch, install the preferred launcher with:
+
+    sudo pacman -S rofi
+
+Keep `config.h` backed up or tracked separately; it is intentionally not
+ignored. Rebuild after changing it:
+
+    make clean all
+
+Install the resulting binary system-wide with:
+
+    sudo make install
+
+The source already includes the gap implementation. The
+`patches/dwm-fullgaps-6.8.diff` patch is based on upstream commit
+`44dbc6809d05b8f2addc483f882e670db0b6b8e9` and reproduces the gap/layout
+changes only (including the safer gap/runtime configuration); copy or
+recreate `config.h` separately when applying it to a clean checkout. The
+older 6.4 patch is kept for reference.
